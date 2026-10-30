@@ -1,0 +1,9 @@
+services:
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ppz
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    ports:
+      - "30001:27017"
