@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from my_voc.auth import AuthError, configure
@@ -56,4 +57,10 @@ app = FastAPI(
     default_response_class=UnicodeJSONResponse,
 )
 app.add_exception_handler(AuthError, auth_error_handler)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(router)
