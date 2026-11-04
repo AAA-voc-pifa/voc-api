@@ -53,6 +53,7 @@ def auth_error_handler(_request: Request, _exc: AuthError) -> UnicodeJSONRespons
 app = FastAPI(
     title="个人词汇管理 API",
     version="0.1.0",
+    description="请求头 `Authentication` 必须与环境变量 `password` 一致。业务失败看 body 的 `ok`；参数不合法返回 422。",
     lifespan=lifespan,
     default_response_class=UnicodeJSONResponse,
 )

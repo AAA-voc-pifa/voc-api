@@ -61,6 +61,10 @@ def delete_word(word: str) -> bool:
     return result.deleted_count != 0
 
 
+def get_word(word: str) -> dict[str, Any] | None:
+    return _collection().find_one({"word": word}, {"_id": 0})
+
+
 def update_points(word: str, points: int) -> bool:
     result = _collection().update_one(
         {"word": word},
@@ -76,3 +80,18 @@ def list_words(limit: int | None = None) -> list[dict[str, Any]]:
     if limit is not None:
         cursor = cursor.limit(limit)
     return list(cursor)
+
+
+def list_words_and_add_points(limit: int, delta: int) -> list[dict[str, Any]]:
+    docs = list_words(limit)
+    if not docs:
+        return []
+    now = datetime.now(timezone.utc)
+    _collection().update_many(
+        {"word": {"$in": [doc["word"] for doc in docs]}},
+        {"$inc": {"points": delta}, "$set": {"update_at": now}},
+    )
+    for doc in docs:
+        doc["points"] = int(doc["points"]) + delta
+        doc["update_at"] = now
+    return docs

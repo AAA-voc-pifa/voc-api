@@ -17,7 +17,10 @@ class AuthError(Exception):
 
 
 def require_auth(
-    authentication: Annotated[str | None, Header(alias="Authentication")] = None,
+    authentication: Annotated[
+        str | None,
+        Header(alias="Authentication", description="与环境变量 password 一致，不加 Bearer"),
+    ] = None,
 ) -> None:
     if not password or authentication is None:
         raise AuthError()

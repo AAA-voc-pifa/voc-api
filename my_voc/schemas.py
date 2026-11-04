@@ -25,6 +25,11 @@ class OkExist(BaseModel):
     data: bool = Field(description="false: 不在; true: 在")
 
 
+class OkVoc(BaseModel):
+    ok: Literal[True] = True
+    data: VocWord
+
+
 class OkVocList(BaseModel):
     ok: Literal[True] = True
     data: list[VocWord]
@@ -42,6 +47,7 @@ class ErrNotFound(BaseModel):
 
 CallResult_NewVoc = OkNull | ErrNewVoc
 CallResult_VocExist = OkExist
+CallResult_VocDetail = OkVoc | ErrNotFound
 CallResult_DeleteVoc = OkNull | ErrNotFound
 CallResult_VocList = OkVocList
 CallResult_UpdatePoints = OkNull | ErrNotFound
