@@ -68,7 +68,7 @@ def get_word(word: str) -> dict[str, Any] | None:
 def update_points(word: str, points: int) -> bool:
     result = _collection().update_one(
         {"word": word},
-        {"$set": {"points": points, "update_at": datetime.now(timezone.utc)}},
+        {"$inc": {"points": points}, "$set": {"update_at": datetime.now(timezone.utc)}},
     )
     return result.matched_count != 0
 

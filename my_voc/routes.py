@@ -81,11 +81,11 @@ def list_all() -> OkVocList:
 @router.post(
     "/voc/points/{word}",
     response_model=CallResult_UpdatePoints,
-    summary="把单词分数设为指定值",
+    summary="给单词加上指定分数",
 )
 def update_points(
     word: Word,
-    points: Annotated[Points, Query(description="新的分数，可为负数")],
+    points: Annotated[Points, Query(description="加上的分数，可为负数")],
 ) -> CallResult_UpdatePoints:
     if not db.update_points(word, points):
         return ErrNotFound()
