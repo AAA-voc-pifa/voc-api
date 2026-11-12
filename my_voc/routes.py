@@ -67,9 +67,16 @@ def delete_word(word: Word) -> CallResult_DeleteVoc:
 def list_lowest(
     count: Annotated[Count, Query(description="取出多少个")],
     points: Annotated[Points, Query(description="给取出的单词加上的分数，可为负数")],
+    exclude: Annotated[
+        list[Word],
+        Query(description="排除的单词，可传多个，如 exclude=a&exclude=b"),
+    ] = [],
 ) -> CallResult_VocList:
     return OkVocList(
-        data=[public_word(doc) for doc in db.list_words_and_add_points(count, points)]
+        data=[
+            public_word(doc)
+            for doc in db.list_words_and_add_points(count, points, exclude=exclude)
+        ]
     )
 
 

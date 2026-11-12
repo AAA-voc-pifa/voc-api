@@ -66,6 +66,8 @@ def get_word(word: str) -> dict[str, Any] | None:
 
 
 def update_points(word: str, points: int) -> bool:
+    if points == 0:
+        return get_word(word) is not None
     result = _collection().update_one(
         {"word": word},
         {"$inc": {"points": points}, "$set": {"update_at": datetime.now(timezone.utc)}},
@@ -73,8 +75,14 @@ def update_points(word: str, points: int) -> bool:
     return result.matched_count != 0
 
 
-def list_words(limit: int | None = None) -> list[dict[str, Any]]:
-    cursor = _collection().find({}, {"_id": 0}).sort(
+def list_words(
+    limit: int | None = None,
+    exclude: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    query: dict[str, Any] = {}
+    if exclude:
+        query["word"] = {"$nin": exclude}
+    cursor = _collection().find(query, {"_id": 0}).sort(
         [("points", ASCENDING), ("add_at", ASCENDING)]
     )
     if limit is not None:
@@ -82,10 +90,14 @@ def list_words(limit: int | None = None) -> list[dict[str, Any]]:
     return list(cursor)
 
 
-def list_words_and_add_points(limit: int, delta: int) -> list[dict[str, Any]]:
-    docs = list_words(limit)
-    if not docs:
-        return []
+def list_words_and_add_points(
+    limit: int,
+    delta: int,
+    exclude: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    docs = list_words(limit, exclude=exclude)
+    if not docs or delta == 0:
+        return docs
     now = datetime.now(timezone.utc)
     _collection().update_many(
         {"word": {"$in": [doc["word"] for doc in docs]}},
