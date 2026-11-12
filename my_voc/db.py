@@ -75,7 +75,7 @@ def update_points(word: str, points: int) -> bool:
 
 def list_words(limit: int | None = None) -> list[dict[str, Any]]:
     cursor = _collection().find({}, {"_id": 0}).sort(
-        [("points", ASCENDING), ("add_at", ASCENDING), ("word", ASCENDING)]
+        [("points", ASCENDING), ("add_at", ASCENDING)]
     )
     if limit is not None:
         cursor = cursor.limit(limit)
