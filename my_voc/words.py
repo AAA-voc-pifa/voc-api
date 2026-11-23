@@ -21,6 +21,7 @@ def normalize_word(raw: str) -> str:
 Word = Annotated[str, AfterValidator(normalize_word)]
 Points = Annotated[int, Field(ge=_INT64_MIN, le=_INT64_MAX)]
 Count = Annotated[int, Field(ge=1, le=_MAX_COUNT)]
+IdleSeconds = Annotated[int, Field(ge=0)]
 
 
 def as_utc_iso(value: datetime) -> str:

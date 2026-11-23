@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from pymongo import ASCENDING, MongoClient
@@ -78,10 +78,15 @@ def update_points(word: str, points: int) -> bool:
 def list_words(
     limit: int | None = None,
     exclude: list[str] | None = None,
+    idle_seconds: int | None = None,
 ) -> list[dict[str, Any]]:
     query: dict[str, Any] = {}
     if exclude:
         query["word"] = {"$nin": exclude}
+    if idle_seconds is not None:
+        query["update_at"] = {
+            "$lt": datetime.now(timezone.utc) - timedelta(seconds=idle_seconds)
+        }
     cursor = _collection().find(query, {"_id": 0}).sort(
         [("points", ASCENDING), ("add_at", ASCENDING)]
     )
@@ -94,8 +99,9 @@ def list_words_and_add_points(
     limit: int,
     delta: int,
     exclude: list[str] | None = None,
+    idle_seconds: int | None = None,
 ) -> list[dict[str, Any]]:
-    docs = list_words(limit, exclude=exclude)
+    docs = list_words(limit, exclude=exclude, idle_seconds=idle_seconds)
     if not docs or delta == 0:
         return docs
     now = datetime.now(timezone.utc)

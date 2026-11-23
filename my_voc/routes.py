@@ -19,7 +19,7 @@ from my_voc.schemas import (
     OkVoc,
     OkVocList,
 )
-from my_voc.words import Count, Points, Word, public_word
+from my_voc.words import Count, IdleSeconds, Points, Word, public_word
 
 router = APIRouter(
     dependencies=[Depends(require_auth)],
@@ -67,6 +67,10 @@ def delete_word(word: Word) -> CallResult_DeleteVoc:
 def list_lowest(
     count: Annotated[Count, Query(description="取出多少个")],
     points: Annotated[Points, Query(description="给取出的单词加上的分数，可为负数")],
+    idle_seconds: Annotated[
+        IdleSeconds,
+        Query(description="只取 update_at 至少这么多秒之前的单词，例如 1 表示 1 秒前"),
+    ],
     exclude: Annotated[
         list[Word],
         Query(description="排除的单词，可传多个，如 exclude=a&exclude=b"),
@@ -75,7 +79,12 @@ def list_lowest(
     return OkVocList(
         data=[
             public_word(doc)
-            for doc in db.list_words_and_add_points(count, points, exclude=exclude)
+            for doc in db.list_words_and_add_points(
+                count,
+                points,
+                exclude=exclude,
+                idle_seconds=idle_seconds,
+            )
         ]
     )
 
