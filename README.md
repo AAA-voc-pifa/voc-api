@@ -9,10 +9,9 @@ cd ./voc-api
 
 # 构建 docker image (image 命名为 my-voc)
 docker build -t my-voc .
-# 设置环境变量
-export MONGODB_URI=''
 # 启动容器
 docker run --rm \
+	-e MONGODB_URI='' \
 	-p 127.0.0.1:20001:8000 \
   my-voc
 ```
