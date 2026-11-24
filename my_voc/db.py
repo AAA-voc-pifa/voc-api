@@ -92,7 +92,7 @@ def list_words(
             "$lt": datetime.now(timezone.utc) - timedelta(seconds=idle_seconds)
         }
     cursor = _collection().find(query, {"_id": 0}).sort(
-        [("points", ASCENDING), ("add_at", ASCENDING)]
+        [("points", ASCENDING), ("update_at", ASCENDING)]
     )
     if limit is not None:
         cursor = cursor.limit(limit)

@@ -52,7 +52,7 @@ def delete_word(word: Word) -> CallResult_DeleteVoc:
 @router.get(
     "/voc",
     response_model=CallResult_VocList,
-    summary="取出分数最低的单词并加上 points；同分时早加入的优先",
+    summary="取出分数最低的单词并加上 points；同分时 update_at 早的优先",
 )
 def list_lowest(
     count: Annotated[Count, Query(description="取出多少个")],
