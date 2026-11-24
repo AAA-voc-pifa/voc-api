@@ -1,13 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Query
 
 from my_voc import db
-from my_voc.auth import require_auth
 from my_voc.schemas import (
     CallResult_DeleteVoc,
     CallResult_NewVoc,
-    CallResult_Unauthorized,
     CallResult_UpdatePoints,
     CallResult_VocDetail,
     CallResult_VocExist,
@@ -21,15 +19,7 @@ from my_voc.schemas import (
 )
 from my_voc.words import Count, IdleSeconds, Points, Word, public_word
 
-router = APIRouter(
-    dependencies=[Depends(require_auth)],
-    responses={401: {"model": CallResult_Unauthorized, "description": "口令错误或缺失"}},
-)
-
-
-@router.get("/auth", response_model=OkNull, summary="验证口令")
-def auth() -> OkNull:
-    return OkNull()
+router = APIRouter()
 
 
 @router.post("/voc/{word}", response_model=CallResult_NewVoc, summary="添加单词")

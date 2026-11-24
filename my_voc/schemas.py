@@ -10,11 +10,6 @@ class VocWord(BaseModel):
     update_at: str = Field(description="ISO 8601，UTC")
 
 
-class CallResult_Unauthorized(BaseModel):
-    ok: Literal[False]
-    error: Literal["未授权"]
-
-
 class OkNull(BaseModel):
     ok: Literal[True] = True
     data: None = None

@@ -3,13 +3,13 @@ from typing import Any
 
 from pymongo import ASCENDING, MongoClient
 from pymongo.collection import Collection
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import ConfigurationError, DuplicateKeyError
 
 mongo: MongoClient | None = None
 words: Collection | None = None
 
 
-def connect(uri: str, db_name: str) -> None:
+def connect(uri: str) -> None:
     global mongo, words
     client = MongoClient(
         uri,
@@ -19,11 +19,15 @@ def connect(uri: str, db_name: str) -> None:
     )
     try:
         client.admin.command("ping")
+        database = client.get_default_database()
+    except ConfigurationError as exc:
+        client.close()
+        raise RuntimeError("MONGODB_URI 里需要包含数据库名") from exc
     except Exception as exc:
         client.close()
         raise RuntimeError("无法连接 MongoDB") from exc
     mongo = client
-    words = client[db_name]["words"]
+    words = database["words"]
     words.create_index("word", unique=True, name="word_unique")
 
 
