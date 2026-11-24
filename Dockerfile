@@ -13,6 +13,6 @@ COPY main.py ./
 COPY my_voc ./my_voc
 RUN uv sync --frozen --no-dev
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "80"]

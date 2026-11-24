@@ -12,6 +12,8 @@ docker build -t my-voc .
 # 启动容器
 docker run --rm \
 	-e MONGODB_URI='' \
-	-p 127.0.0.1:20001:8000 \
+	-p 127.0.0.1:20001:80 \
   my-voc
 ```
+
+API 文档: 浏览器打开 http://127.0.0.1:20001/docs
