@@ -5,12 +5,15 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from my_voc.auth import AuthError
 from my_voc.db import close, connect
-from my_voc.routes import router
+from my_voc.routes import public_router, router
+
+_REQUIRED_ENV = ("MONGODB_URI", "AUTHENTICATION")
 
 
 class UnicodeJSONResponse(JSONResponse):
@@ -19,12 +22,12 @@ class UnicodeJSONResponse(JSONResponse):
 
 
 def _prepare() -> None:
-    uri = os.environ.get("MONGODB_URI")
-    if not uri:
-        print("缺少环境变量: MONGODB_URI", file=sys.stderr)
+    missing = [name for name in _REQUIRED_ENV if not os.environ.get(name)]
+    if missing:
+        print("缺少环境变量: " + ", ".join(missing), file=sys.stderr)
         sys.exit(1)
     try:
-        connect(uri)
+        connect(os.environ["MONGODB_URI"])
     except RuntimeError as exc:
         print(exc, file=sys.stderr)
         sys.exit(1)
@@ -39,17 +42,26 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     close()
 
 
+def auth_error_handler(_request: Request, _exc: AuthError) -> UnicodeJSONResponse:
+    return UnicodeJSONResponse(
+        status_code=401,
+        content={"ok": False, "error": "未授权"},
+    )
+
+
 app = FastAPI(
     title="个人词汇管理 API",
     version="0.1.0",
-    description="本机基础服务，无鉴权。业务失败看 body 的 `ok`；参数不合法返回 422。",
+    description="请求头 `Authentication` 须与环境变量 `AUTHENTICATION` 一致。`/docs`、`/ready` 除外。业务失败看 body 的 `ok`；参数不合法返回 422。",
     lifespan=lifespan,
     default_response_class=UnicodeJSONResponse,
 )
+app.add_exception_handler(AuthError, auth_error_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(public_router)
 app.include_router(router)
