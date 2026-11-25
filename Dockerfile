@@ -15,4 +15,4 @@ COPY my_voc ./my_voc
 RUN uv sync --frozen --no-dev
 
 EXPOSE 80
-CMD fastapi run
+CMD ["fastapi", "run"]
