@@ -109,6 +109,7 @@ def update_points(
     word: Word,
     points: Annotated[Points, Query(description="加上的分数，可为负数")],
 ) -> CallResult_UpdatePoints:
-    if not db.update_points(word, points):
+    doc = db.update_points(word, points)
+    if doc is None:
         return ErrNotFound()
-    return OkNull()
+    return OkVoc(data=public_word(doc))

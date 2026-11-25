@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from pymongo import ASCENDING, MongoClient
+from pymongo import ASCENDING, ReturnDocument, MongoClient
 from pymongo.collection import Collection
 from pymongo.errors import ConfigurationError, DuplicateKeyError
 
@@ -69,14 +69,16 @@ def get_word(word: str) -> dict[str, Any] | None:
     return _collection().find_one({"word": word}, {"_id": 0})
 
 
-def update_points(word: str, points: int) -> bool:
+def update_points(word: str, points: int) -> dict[str, Any] | None:
+    """Apply delta and return the updated word doc, or None if missing."""
     if points == 0:
-        return get_word(word) is not None
-    result = _collection().update_one(
+        return get_word(word)
+    return _collection().find_one_and_update(
         {"word": word},
         {"$inc": {"points": points}, "$set": {"update_at": datetime.now(timezone.utc)}},
+        projection={"_id": 0},
+        return_document=ReturnDocument.AFTER,
     )
-    return result.matched_count != 0
 
 
 def list_words(

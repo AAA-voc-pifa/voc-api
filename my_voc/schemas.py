@@ -50,4 +50,4 @@ CallResult_VocExist = OkExist
 CallResult_VocDetail = OkVoc | ErrNotFound
 CallResult_DeleteVoc = OkNull | ErrNotFound
 CallResult_VocList = OkVocList
-CallResult_UpdatePoints = OkNull | ErrNotFound
+CallResult_UpdatePoints = OkVoc | ErrNotFound
